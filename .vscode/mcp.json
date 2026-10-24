@@ -1,0 +1,15 @@
+
+{
+  "servers": {
+    "filesystem": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:\\Users\\Javie\\Documents\\Proyecto_Software"
+      ]
+    }
+  }
+}
