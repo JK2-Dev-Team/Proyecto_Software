@@ -34,3 +34,9 @@ export const inventarioService = {
   crear: (d) => api.post('/inventario', d).then(datos),
   movimiento: (id, d) => api.post(`/inventario/${id}/movimientos`, d).then(datos),
 };
+
+export const reportesService = {
+  ordenes: (params) => api.get('/reportes/ordenes', { params }).then(datos),
+  consumoInsumos: (params) => api.get('/reportes/consumo-insumos', { params }).then(datos),
+  citas: (params) => api.get('/reportes/citas', { params }).then(datos),
+};
