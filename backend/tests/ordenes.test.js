@@ -1,13 +1,10 @@
-// Corre sin dependencias: node --test test/
-const { test } = require('node:test');
-const assert = require('node:assert/strict');
 const { puedeTransitar } = require('../src/patterns/estadosOrden');
 const { calcularConsumo } = require('../src/patterns/consumoStrategies');
 const { StockSubject, AlertaStockBajoObserver } = require('../src/patterns/stockSubject');
 const { createInventarioService } = require('../src/services/inventarioService');
 const { createOrdenService } = require('../src/services/ordenService');
-
-// BD simulada en memoria con soporte mínimo de transacciones (snapshot/rollback).
+ 
+// Pruebas de órdenes e inventario (Jest). BD simulada en memoria con soporte mínimo de transacciones (snapshot/rollback).
 function fakeDb({ orden, receta, insumos }) {
   const state = { orden: { ...orden }, insumos: JSON.parse(JSON.stringify(insumos)), movs: [], historial: [], alertas: [] };
   let snap = null;
@@ -35,7 +32,7 @@ function fakeDb({ orden, receta, insumos }) {
   const client = { query: run, release() {} };
   return { state, query: run, getPool: () => ({ connect: async () => client }) };
 }
-
+ 
 function armar(opts) {
   const db = fakeDb(opts);
   const subject = new StockSubject();
@@ -44,7 +41,7 @@ function armar(opts) {
   const ordenes = createOrdenService({ db, inventario, subject });
   return { db, ordenes, inventario };
 }
-
+ 
 const base = () => ({
   orden: { id: 1, estado: 'recibido', unidades: 3, tipo_procedimiento_id: 7, insumos_descontados: false },
   receta: [
@@ -56,80 +53,81 @@ const base = () => ({
     { id: 11, nombre: 'Revestimiento', stock_actual: 5, stock_minimo: 1 },
   ],
 });
-
+ 
 test('transiciones válidas e inválidas', () => {
-  assert.equal(puedeTransitar('recibido', 'modelado'), true);
-  assert.equal(puedeTransitar('recibido', 'terminado'), false);
-  assert.equal(puedeTransitar('control_calidad', 'coccion_acabado'), true); // retrabajo
-  assert.equal(puedeTransitar('entregado', 'recibido'), false);
+  expect(puedeTransitar('recibido', 'en_modelado')).toBe(true);
+  expect(puedeTransitar('recibido', 'terminado')).toBe(false);
+  expect(puedeTransitar('control_calidad', 'en_coccion_acabado')).toBe(true); // retrabajo
+  expect(puedeTransitar('entregado', 'recibido')).toBe(false);
 });
-
+ 
 test('Strategy: por_unidad vs fijo', () => {
-  assert.equal(calcularConsumo({ cantidad: '2', modo_consumo: 'por_unidad' }, 3), 6);
-  assert.equal(calcularConsumo({ cantidad: '2', modo_consumo: 'fijo' }, 3), 2);
-  assert.throws(() => calcularConsumo({ cantidad: 1, modo_consumo: 'xx' }, 1));
+  expect(calcularConsumo({ cantidad: '2', modo_consumo: 'por_unidad' }, 3)).toBe(6);
+  expect(calcularConsumo({ cantidad: '2', modo_consumo: 'fijo' }, 3)).toBe(2);
+  expect(() => calcularConsumo({ cantidad: 1, modo_consumo: 'xx' }, 1)).toThrow();
 });
-
+ 
 test('pasar a "modelado" descuenta insumos (por_unidad y fijo) sin alerta si queda sobre el mínimo', async () => {
   const { db, ordenes } = armar(base());
-  const r = await ordenes.cambiarEstado(1, 'modelado', { id: 99 });
-  assert.equal(r.estado, 'modelado');
-  assert.equal(db.state.insumos[0].stock_actual, 14); // 20 - 6
-  assert.equal(db.state.insumos[1].stock_actual, 4);  // 5 - 1
-  assert.equal(db.state.movs.length, 2);
-  assert.equal(db.state.alertas.length, 0);           // 14 > 10, 4 > 1
+  const r = await ordenes.cambiarEstado(1, 'en_modelado', { id: 99 });
+  expect(r.estado).toBe('en_modelado');
+  expect(db.state.insumos[0].stock_actual).toBe(14); // 20 - 6
+  expect(db.state.insumos[1].stock_actual).toBe(4);  // 5 - 1
+  expect(db.state.movs.length).toBe(2);
+  expect(db.state.movs.every((m) => m[2] > 0)).toBeTruthy();    // la tabla exige cantidad > 0
+  expect(db.state.alertas.length).toBe(0);           // 14 > 10, 4 > 1
 });
-
+ 
 test('Observer: alerta de stock bajo cuando el consumo cruza el mínimo', async () => {
   const o = base();
   o.insumos[0].stock_actual = 12; // 12 - 6 = 6 <= 10
   const { db, ordenes } = armar(o);
-  await ordenes.cambiarEstado(1, 'modelado', { id: 1 });
-  assert.equal(db.state.alertas.length, 1);
-  assert.equal(db.state.alertas[0].insumo_id, 10);
+  await ordenes.cambiarEstado(1, 'en_modelado', { id: 1 });
+  expect(db.state.alertas.length).toBe(1);
+  expect(db.state.alertas[0].insumo_id).toBe(10);
 });
-
+ 
 test('stock insuficiente: revierte todo y no cambia el estado', async () => {
   const o = base();
   o.insumos[1].stock_actual = 0; // el segundo insumo falla tras descontar el primero
   const { db, ordenes } = armar(o);
-  await assert.rejects(() => ordenes.cambiarEstado(1, 'modelado', { id: 1 }), { status: 409 });
-  assert.equal(db.state.orden.estado, 'recibido');
-  assert.equal(db.state.insumos[0].stock_actual, 20); // rollback del primer descuento
-  assert.equal(db.state.movs.length, 0);
-  assert.equal(db.state.alertas.length, 0);
+  await expect(ordenes.cambiarEstado(1, 'en_modelado', { id: 1 })).rejects.toMatchObject({ status: 409 });
+  expect(db.state.orden.estado).toBe('recibido');
+  expect(db.state.insumos[0].stock_actual).toBe(20); // rollback del primer descuento
+  expect(db.state.movs.length).toBe(0);
+  expect(db.state.alertas.length).toBe(0);
 });
-
+ 
 test('transición inválida responde 409 y no toca inventario', async () => {
   const { db, ordenes } = armar(base());
-  await assert.rejects(() => ordenes.cambiarEstado(1, 'terminado', { id: 1 }), { status: 409 });
-  assert.equal(db.state.movs.length, 0);
+  await expect(ordenes.cambiarEstado(1, 'terminado', { id: 1 })).rejects.toMatchObject({ status: 409 });
+  expect(db.state.movs.length).toBe(0);
 });
-
+ 
 test('el descuento ocurre una sola vez aunque haya retrabajo', async () => {
   const o = base();
   o.orden.estado = 'control_calidad';
   o.orden.insumos_descontados = true;
   const { db, ordenes } = armar(o);
-  await ordenes.cambiarEstado(1, 'coccion_acabado', { id: 1 });
-  assert.equal(db.state.movs.length, 0);
+  await ordenes.cambiarEstado(1, 'en_coccion_acabado', { id: 1 });
+  expect(db.state.movs.length).toBe(0);
 });
-
+ 
 test('orden inexistente responde 404', async () => {
   const { ordenes } = armar(base());
-  await assert.rejects(() => ordenes.cambiarEstado(999, 'modelado', {}), { status: 404 });
+  await expect(ordenes.cambiarEstado(999, 'en_modelado', {})).rejects.toMatchObject({ status: 404 });
 });
-
+ 
 test('Observer: la alerta se cierra cuando una entrada recupera el stock', async () => {
   const { db, inventario } = armar({ ...base(), insumos: [{ id: 10, nombre: 'Cerámica', stock_actual: 3, stock_minimo: 10 }] });
   await inventario.registrarMovimiento({ insumo_id: 10, tipo: 'salida', cantidad: 1 });
-  assert.equal(db.state.alertas.filter((a) => a.abierta).length, 1);
+  expect(db.state.alertas.filter((a) => a.abierta).length).toBe(1);
   await inventario.registrarMovimiento({ insumo_id: 10, tipo: 'entrada', cantidad: 50 });
-  assert.equal(db.state.alertas.filter((a) => a.abierta).length, 0);
+  expect(db.state.alertas.filter((a) => a.abierta).length).toBe(0);
 });
-
+ 
 test('movimiento inválido: cantidad 0 o negativa en salida', async () => {
   const { inventario } = armar(base());
-  await assert.rejects(() => inventario.registrarMovimiento({ insumo_id: 10, tipo: 'salida', cantidad: 0 }), { status: 400 });
-  await assert.rejects(() => inventario.registrarMovimiento({ insumo_id: 10, tipo: 'salida', cantidad: -2 }), { status: 400 });
+  await expect(inventario.registrarMovimiento({ insumo_id: 10, tipo: 'salida', cantidad: 0 })).rejects.toMatchObject({ status: 400 });
+  await expect(inventario.registrarMovimiento({ insumo_id: 10, tipo: 'salida', cantidad: -2 })).rejects.toMatchObject({ status: 400 });
 });
