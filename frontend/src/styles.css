@@ -147,4 +147,35 @@ td.acciones .boton + .boton { margin-left: 6px; }
   .fila { grid-template-columns: 1fr; }
 }
 
+/* ---------- Reportes ---------- */
+.periodo { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px 24px; margin-bottom: 20px; }
+.presets { display: flex; flex-wrap: wrap; gap: 8px; }
+.fechas { display: flex; flex-wrap: wrap; gap: 12px; }
+.fechas .campo { margin-bottom: 0; }
+.rotulo-periodo { margin-bottom: 14px; }
+.reportes { transition: opacity 0.15s; }
+.reportes.actualizando { opacity: 0.55; }
+.resumen { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 8px; }
+.dato { display: flex; flex-direction: column; background: var(--porcelana); border: 1px solid var(--linea); border-radius: 8px; padding: 14px 16px; }
+.dato strong { font-family: var(--fuente-titulo); font-size: 2rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.dato span { font-weight: 600; }
+.dato small { color: var(--tinta-suave); }
+.bloque-reporte { margin-top: 28px; }
+.bloque-reporte > h2 { margin-bottom: 4px; }
+.bloque-reporte > .suave { margin-bottom: 10px; }
+.bloque-reporte .tabla-envoltorio, .bloque-reporte .barras { margin-top: 10px; }
+.barras { list-style: none; padding: 14px 16px; margin: 0; background: var(--porcelana); border: 1px solid var(--linea); border-radius: 8px; display: grid; gap: 10px; }
+.barras li { display: grid; grid-template-columns: minmax(110px, 160px) 1fr 40px; align-items: center; gap: 12px; }
+.barra-valor { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.barra-pista { display: block; height: 12px; background: var(--yeso); border-radius: 6px; overflow: hidden; min-width: 80px; }
+.barra-relleno { display: block; height: 100%; background: var(--cera); border-radius: 6px; }
+.celda-barra { width: 28%; min-width: 110px; }
+td.cero { color: var(--tinta-suave); opacity: 0.6; }
+td.total { font-weight: 600; }
+.nowrap, .bloque-reporte td:first-child { white-space: nowrap; }
+.barra-etiqueta { min-width: 0; }
+@media (max-width: 800px) {
+  .barras li { grid-template-columns: 125px 1fr 28px; gap: 8px; }
+}
+
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }

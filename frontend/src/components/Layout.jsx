@@ -8,6 +8,7 @@ const ENLACES = [
   { a: '/citas', texto: 'Citas' },
   { a: '/inventario', texto: 'Inventario', conAlertas: true },
   { a: '/clientes', texto: 'Clientes' },
+  { a: '/reportes', texto: 'Reportes' },
 ];
 
 export default function Layout() {
