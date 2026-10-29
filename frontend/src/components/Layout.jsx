@@ -9,10 +9,11 @@ const ENLACES = [
   { a: '/inventario', texto: 'Inventario', conAlertas: true },
   { a: '/clientes', texto: 'Clientes' },
   { a: '/reportes', texto: 'Reportes' },
+  { a: '/usuarios', texto: 'Usuarios', soloAdmin: true },
 ];
 
 export default function Layout() {
-  const { usuario, salir } = useAuth();
+  const { usuario, salir, esAdmin } = useAuth();
   const { pathname } = useLocation();
   const [alertas, setAlertas] = useState(0);
 
@@ -36,7 +37,7 @@ export default function Layout() {
           <span>Miguel Torres</span>
         </div>
         <nav aria-label="Secciones">
-          {ENLACES.map((e) => (
+          {ENLACES.filter((e) => !e.soloAdmin || esAdmin).map((e) => (
             <NavLink key={e.a} to={e.a}>
               {e.texto}
               {e.conAlertas && alertas > 0 && (

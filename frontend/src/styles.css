@@ -178,4 +178,8 @@ td.total { font-weight: 600; }
   .barras li { grid-template-columns: 125px 1fr 28px; gap: 8px; }
 }
 
+/* ---------- Usuarios ---------- */
+tr.usuario-inactivo td { color: var(--tinta-suave); }
+tr.usuario-inactivo td.acciones { color: inherit; }
+
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }

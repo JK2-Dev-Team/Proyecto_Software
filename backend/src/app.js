@@ -15,6 +15,7 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 app.use('/api', routes);
 app.use('/api', require('./routes/ordenesInventario.routes'));
 app.use('/api', require('./routes/reportes.routes'));
+app.use('/api', require('./routes/usuarios.routes'));
 
 app.use(notFound);
 app.use(errorHandler);

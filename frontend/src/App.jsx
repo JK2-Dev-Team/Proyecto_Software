@@ -8,6 +8,7 @@ import Citas from './pages/Citas';
 import Inventario from './pages/Inventario';
 import Clientes from './pages/Clientes';
 import Reportes from './pages/Reportes';
+import Usuarios from './pages/Usuarios';
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
               <Route path="inventario" element={<Inventario />} />
               <Route path="clientes" element={<Clientes />} />
               <Route path="reportes" element={<Reportes />} />
+              <Route path="usuarios" element={<Usuarios />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
