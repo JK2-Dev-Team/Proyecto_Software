@@ -40,3 +40,10 @@ export const reportesService = {
   consumoInsumos: (params) => api.get('/reportes/consumo-insumos', { params }).then(datos),
   citas: (params) => api.get('/reportes/citas', { params }).then(datos),
 };
+
+export const usuariosService = {
+  listar: () => api.get('/usuarios').then(datos),
+  crear: (d) => api.post('/usuarios', d).then(datos),
+  actualizar: (id, d) => api.patch(`/usuarios/${id}`, d).then(datos),
+  restablecerPassword: (id, password) => api.put(`/usuarios/${id}/password`, { password }).then(datos),
+};
