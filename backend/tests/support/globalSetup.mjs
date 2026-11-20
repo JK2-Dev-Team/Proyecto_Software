@@ -2,16 +2,16 @@
 // No usa Supabase ni el .env: los binarios vienen en el paquete npm `embedded-postgres`,
 // así que funciona igual en Windows, en Mac y en GitHub Actions sin instalar nada más.
 import EmbeddedPostgres from 'embedded-postgres';
-import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { limpiarCarpetaPg } from './pgHuerfana.mjs';
 
 const PUERTO = Number(process.env.TEST_PG_PORT || 54329);
 
 export default async function globalSetup() {
   // Carpeta dentro de backend/ (ignorada por git): evita rutas con espacios o tildes del usuario de Windows.
   const dir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../.pg-test');
-  fs.rmSync(dir, { recursive: true, force: true }); // por si una ejecución anterior se interrumpió
+  await limpiarCarpetaPg(dir); // por si una ejecución anterior se interrumpió
   const pg = new EmbeddedPostgres({
     databaseDir: dir,
     user: 'postgres',
