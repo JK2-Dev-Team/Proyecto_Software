@@ -1,8 +1,8 @@
-const { puedeTransitar } = require('../src/patterns/estadosOrden');
-const { calcularConsumo } = require('../src/patterns/consumoStrategies');
-const { StockSubject, AlertaStockBajoObserver } = require('../src/patterns/stockSubject');
-const { createInventarioService } = require('../src/services/inventarioService');
-const { createOrdenService } = require('../src/services/ordenService');
+const { puedeTransitar } = require('../../src/patterns/estadosOrden');
+const { calcularConsumo } = require('../../src/patterns/consumoStrategies');
+const { StockSubject, AlertaStockBajoObserver } = require('../../src/patterns/stockSubject');
+const { createInventarioService } = require('../../src/services/inventarioService');
+const { createOrdenService } = require('../../src/services/ordenService');
  
 // Pruebas de órdenes e inventario (Jest). BD simulada en memoria con soporte mínimo de transacciones (snapshot/rollback).
 function fakeDb({ orden, receta, insumos }) {

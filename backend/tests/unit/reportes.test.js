@@ -1,12 +1,12 @@
 process.env.JWT_SECRET = 'secreto-de-prueba';
 
-jest.mock('../src/db/connection', () => ({ query: jest.fn() }));
+jest.mock('../../src/db/connection', () => ({ query: jest.fn() }));
 
 const request = require('supertest');
 const jwt = require('jsonwebtoken');
-const db = require('../src/db/connection');
-const app = require('../src/app');
-const { createReporteService, resolverPeriodo, lunesDe } = require('../src/services/reporteService');
+const db = require('../../src/db/connection');
+const app = require('../../src/app');
+const { createReporteService, resolverPeriodo, lunesDe } = require('../../src/services/reporteService');
 
 const token = (rol = 'recepcionista') => jwt.sign({ id: 1, rol, nombre: 'Test' }, 'secreto-de-prueba', { expiresIn: '1h' });
 

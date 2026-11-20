@@ -7,7 +7,10 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "jest --coverage",
+    "test": "jest --runInBand",
+    "test:unit": "jest --selectProjects unitarias",
+    "test:integration": "jest --selectProjects integracion --runInBand",
+    "test:cov": "jest --coverage --runInBand",
     "seed:admin": "node scripts/seed-admin.js"
   },
   "dependencies": {
@@ -20,12 +23,44 @@
     "pg": "^8.12.0"
   },
   "devDependencies": {
+    "embedded-postgres": "^17.10.0-beta.17",
     "jest": "^29.7.0",
     "nodemon": "^3.1.4",
     "supertest": "^7.0.0"
   },
   "jest": {
-    "testEnvironment": "node",
-    "collectCoverageFrom": ["src/services/**/*.js"]
+    "projects": [
+      {
+        "displayName": "unitarias",
+        "testEnvironment": "node",
+        "testMatch": [
+          "<rootDir>/tests/unit/**/*.test.js"
+        ]
+      },
+      {
+        "displayName": "integracion",
+        "testEnvironment": "node",
+        "testMatch": [
+          "<rootDir>/tests/integration/**/*.test.js"
+        ],
+        "globalSetup": "<rootDir>/tests/support/globalSetup.mjs",
+        "globalTeardown": "<rootDir>/tests/support/globalTeardown.mjs"
+      }
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/server.js"
+    ],
+    "coverageReporters": [
+      "text",
+      "html",
+      "lcov"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "lines": 60,
+        "statements": 60
+      }
+    }
   }
 }

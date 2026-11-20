@@ -1,7 +1,7 @@
-jest.mock('../src/db/connection', () => ({ query: jest.fn() }));
+jest.mock('../../src/db/connection', () => ({ query: jest.fn() }));
 
-const db = require('../src/db/connection');
-const citas = require('../src/services/citas.service');
+const db = require('../../src/db/connection');
+const citas = require('../../src/services/citas.service');
 
 const citaBase = {
   id: 1,

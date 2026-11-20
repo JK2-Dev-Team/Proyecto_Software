@@ -1,11 +1,11 @@
 process.env.JWT_SECRET = 'secreto-de-prueba';
 
-jest.mock('../src/db/connection', () => ({ query: jest.fn() }));
+jest.mock('../../src/db/connection', () => ({ query: jest.fn() }));
 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const db = require('../src/db/connection');
-const auth = require('../src/services/auth.service');
+const db = require('../../src/db/connection');
+const auth = require('../../src/services/auth.service');
 
 const usuarioDb = {
   id: 1,
