@@ -1,13 +1,13 @@
 process.env.JWT_SECRET = 'secreto-de-prueba';
 
-jest.mock('../src/db/connection', () => ({ query: jest.fn() }));
+jest.mock('../../src/db/connection', () => ({ query: jest.fn() }));
 
 const request = require('supertest');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const db = require('../src/db/connection');
-const app = require('../src/app');
-const { createUsuarioService } = require('../src/services/usuarioService');
+const db = require('../../src/db/connection');
+const app = require('../../src/app');
+const { createUsuarioService } = require('../../src/services/usuarioService');
 
 const token = (rol = 'admin', id = 1) => jwt.sign({ id, rol, nombre: 'Test' }, 'secreto-de-prueba', { expiresIn: '1h' });
 

@@ -1,7 +1,7 @@
-jest.mock('../src/db/connection', () => ({ query: jest.fn() }));
+jest.mock('../../src/db/connection', () => ({ query: jest.fn() }));
 
-const db = require('../src/db/connection');
-const clientes = require('../src/services/clientes.service');
+const db = require('../../src/db/connection');
+const clientes = require('../../src/services/clientes.service');
 
 beforeEach(() => db.query.mockReset());
 

@@ -1,0 +1,5 @@
+node_modules/
+coverage/
+.pg-test/
+.env
+.pg-e2e/
